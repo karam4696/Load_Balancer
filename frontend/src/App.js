@@ -11,11 +11,16 @@ const App = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`http://localhost:8000/dog?count=${numberOfImages}`);
+      const response = await axios.get(`https://dog.ceo/api/breeds/image/random/${numberOfImages}`);
       console.log('Response:', response.data);
       
-      if (response.data.images && Array.isArray(response.data.images)) {
-        setDogImages(response.data.images);
+      if (response.data.message && Array.isArray(response.data.message)) {
+        // Transform the response to match our existing structure
+        const images = response.data.message.map(url => ({
+          url: url,
+          port: 'Dog CEO API' // Since we don't have port info from Dog CEO API
+        }));
+        setDogImages(images);
       } else {
         setError('Invalid response format');
       }
@@ -36,7 +41,9 @@ const App = () => {
           <input 
             type="number" 
             value={numberOfImages} 
-            onChange={(e) => setNumberOfImages(Math.max(parseInt(e.target.value)))}
+            onChange={(e) => setNumberOfImages(Math.max(1, parseInt(e.target.value) || 1))}
+            min="1"
+            max="50"
             className="ml-2 w-20 p-2 border rounded"
           />
         </label>
